@@ -1,10 +1,11 @@
-import constants._
+import aes_cipher.Constants
 
 @main def hello(): Unit =
   println("Hello world!")
+  println(Constants.R_CON.mkString("Array(", ", ", ")"))
   println(msg)
   // Convert each byte to its hexadecimal representation and concatenate them
-  val hexString: String = S_BOX.map(byte => f"${byte & 0xFF}%02x, ").mkString
+  val hexString: String = Constants.S_BOX.map(byte => f"${byte & 0xFF}%02x, ").mkString
 
   // Print the hexadecimal string
   println(hexString)

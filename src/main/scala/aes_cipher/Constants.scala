@@ -1,6 +1,6 @@
-// Define constants in package object
-package object constants {
-import scala.Array
+package aes_cipher
+
+object Constants {
 
 val S_BOX: Array[Byte] = Array(
     0x63.toByte, 0x7c.toByte, 0x77.toByte, 0x7b.toByte, 0xf2.toByte, 0x6b.toByte, 0x6f.toByte, 0xc5.toByte, 0x30.toByte, 0x01.toByte, 0x67.toByte, 0x2b.toByte, 0xfe.toByte, 0xd7.toByte, 0xab.toByte, 0x76.toByte,
