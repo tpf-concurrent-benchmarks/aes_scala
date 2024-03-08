@@ -44,4 +44,11 @@ val S_BOX: Array[Byte] = Array(
     0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000, 0x20000000, 0x40000000, 0x80000000,
     0x1b000000, 0x36000000
   )
+
+  // Number of columns (32-bit words) comprising the State
+  val N_K: Int = 4
+  // Number of 32-bit words comprising the Cipher Key
+  val N_B: Int = 4
+  // Number of rounds, which is a function of Nk and Nb (which is fixed)
+  val N_R: Int = 10
 }
