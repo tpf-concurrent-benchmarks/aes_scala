@@ -28,7 +28,7 @@ class AESCipherTest extends munit.FunSuite {
       0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34
     ).map(_.toByte)
 
-    // In rust is represented as u128 0x2b7e151628aed2a6abf7158809cf4f3c
+    // In rust is represented as u128 0x2b7e151628aed2a6abf7158809cf4f3c, it does not work
     val cipherKey: BigInt = BigInt("318907942106667801750562820069233614284")
 
     val expectedCipherBytes: Array[Byte] = Array(

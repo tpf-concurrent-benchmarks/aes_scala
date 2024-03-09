@@ -1,4 +1,4 @@
-package aes_cipher.aes_key
+package aes_cipher
 
 import aes_cipher.{Constants, State}
 

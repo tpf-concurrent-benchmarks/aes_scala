@@ -1,5 +1,4 @@
-import aes_cipher.Constants
-import aes_cipher.aes_key.AESKey
+import aes_cipher.{AESKey, Constants}
 
 class AESKeyTest extends munit.FunSuite {
 
