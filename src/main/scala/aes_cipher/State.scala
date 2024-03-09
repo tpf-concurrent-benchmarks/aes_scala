@@ -72,7 +72,7 @@ class State(var data: Matrix) {
         (col(0) ^ col(1) ^ galoisMul(col(2), 2) ^ galoisMul(col(3), 3)).toByte,
         (galoisMul(col(0), 3) ^ col(1) ^ col(2) ^ galoisMul(col(3), 2)).toByte
       )
-      
+
       data.setCol(i, newCol)
     }
   }
