@@ -13,10 +13,6 @@ services:
     ports:
       - "8080:8080"
       - "8125:8125/udp"
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
 
   grafana:
     image: efoppiano/grafana:0.1
@@ -32,19 +28,11 @@ services:
       - GF_LOG_FILTERS=rendering:debug
     depends_on:
       - graphite
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
 
   renderer:
     image: grafana/grafana-image-renderer:latest
     ports:
       - "8082:8081"
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.0
