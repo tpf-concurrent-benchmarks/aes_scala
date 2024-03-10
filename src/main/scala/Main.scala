@@ -1,4 +1,5 @@
 import aes_cipher.{AESCipher, Constants}
+import scala.collection.parallel.CollectionConverters._
 
 import scala.concurrent.duration._
 import scala.util.Random
@@ -34,9 +35,9 @@ import scala.util.Random
   }
 
 def applyOperationsAndCompare(cipher: AESCipher, blocks: Vector[Array[Byte]]): Boolean = {
-  val cipheredBlocks = blocks.map(block => cipher.cipherBlock(block))
+  val cipheredBlocks = blocks.par.map(block => cipher.cipherBlock(block)).toVector
 
-  val decipheredBlocks = cipheredBlocks.map(block => cipher.invCipherBlock(block))
+  val decipheredBlocks = cipheredBlocks.par.map(block => cipher.invCipherBlock(block)).toVector
 
   blocks.zip(decipheredBlocks).forall { case (originalBlock, decipheredBlock) =>
     originalBlock.sameElements(decipheredBlock)
