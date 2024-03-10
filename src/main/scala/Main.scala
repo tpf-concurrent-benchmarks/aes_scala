@@ -1,8 +1,10 @@
 import aes_cipher.{AESCipher, Constants}
 
+import scala.concurrent.duration._
 import scala.util.Random
 
 @main def main(): Unit =
+  Thread.sleep(10.seconds.toMillis)
 
   val blocksToEncrypt = 1000000
   val blocks = (0 until blocksToEncrypt).map(_ => {
