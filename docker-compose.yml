@@ -69,6 +69,7 @@ services:
         condition: none
     environment:
       - LOCAL=${LOCAL}
+      - N_THREADS=${N_THREADS}
 
 volumes:
   grafana_config:

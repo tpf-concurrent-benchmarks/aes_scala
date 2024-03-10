@@ -1,10 +1,19 @@
 import aes_cipher.{AESCipher, Constants}
-import scala.collection.parallel.CollectionConverters._
 
-import scala.concurrent.duration._
+import java.util.concurrent.ForkJoinPool
+import scala.collection.parallel.CollectionConverters.*
+import scala.collection.parallel.ForkJoinTaskSupport
+import scala.concurrent.duration.*
 import scala.util.Random
 
 @main def main(): Unit =
+
+  val nThreads = sys.env.get("N_THREADS").map(_.toInt).getOrElse {
+    println("N_THREADS environment variable not found")
+    System.exit(1)
+    0
+  }
+
   Thread.sleep(10.seconds.toMillis)
 
   val blocksToEncrypt = 1000000
@@ -19,12 +28,14 @@ import scala.util.Random
   val cipherKey: BigInt = BigInt("2b7e151628aed2a6abf7158809cf4f3c", 16)
 
   val cipher = AESCipher(cipherKey)
+  val forkJoinPool = createForkJoinPool(nThreads)
+  val forkJoinTask = new ForkJoinTaskSupport(forkJoinPool)
 
   val startTime = System.nanoTime()
 
   if (!sys.env.contains("LOCAL")) {
 
-    val result = applyOperationsAndCompare(cipher, blocks)
+    val result = applyOperationsAndCompare(cipher, blocks, forkJoinTask)
     assert(result)
 
     println("Test passed (local)")
@@ -34,13 +45,20 @@ import scala.util.Random
 
   }
 
-def applyOperationsAndCompare(cipher: AESCipher, blocks: Vector[Array[Byte]]): Boolean = {
-  val cipheredBlocks = blocks.par.map(block => cipher.cipherBlock(block)).toVector
+def applyOperationsAndCompare(cipher: AESCipher, blocks: Vector[Array[Byte]], forkJoinTask: ForkJoinTaskSupport): Boolean = {
+  val cipheredBlocks = blocks.par
+  cipheredBlocks.tasksupport = forkJoinTask
+  cipheredBlocks.map(block => cipher.cipherBlock(block)).toVector
 
-  val decipheredBlocks = cipheredBlocks.par.map(block => cipher.invCipherBlock(block)).toVector
+  val decipheredBlocks = cipheredBlocks.par
+  decipheredBlocks.tasksupport = forkJoinTask
+  decipheredBlocks.map(block => cipher.invCipherBlock(block)).toVector
 
   blocks.zip(decipheredBlocks).forall { case (originalBlock, decipheredBlock) =>
     originalBlock.sameElements(decipheredBlock)
   }
 }
+
+def createForkJoinPool(parallelismLevel: Int): java.util.concurrent.ForkJoinPool =
+  new java.util.concurrent.ForkJoinPool(parallelismLevel)
 
