@@ -34,7 +34,7 @@ class AESCipherTest extends munit.FunSuite {
       0x39, 0x25, 0x84, 0x1d, 0x02, 0xdc, 0x09, 0xfb, 0xdc, 0x11, 0x85, 0x97, 0x19, 0x6a, 0x0b, 0x32
     ).map(_.toByte)
 
-    val cipher = AESCipher.apply(cipherKey)
+    val cipher = AESCipher(cipherKey)
 
     val cipherBytes = cipher.cipherBlock(plainBytes)
 
