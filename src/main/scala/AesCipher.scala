@@ -81,6 +81,6 @@ class AesCipher(cipherKey: BigInt, nThreads: Int) {
       output.close()
     }
   }
-  
+
 }
 

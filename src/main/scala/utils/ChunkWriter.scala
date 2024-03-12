@@ -22,6 +22,7 @@ class ChunkWriter (output: OutputStream, removePadding: Boolean) {
     } else {
       bufferedOutput.write(chunk)
     }
+    bufferedOutput.flush()
   }
 
   private def writeChunkWithoutPadding(chunk: Array[Byte]): Unit = {

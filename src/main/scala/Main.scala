@@ -1,5 +1,6 @@
 import java.io.{BufferedInputStream, FileInputStream, FileOutputStream}
-import scala.concurrent.duration.*
+import scala.concurrent.duration.DurationInt
+
 import scala.util.{Try, Using}
 
 @main def main(): Unit =
