@@ -33,3 +33,7 @@ metals.sbt
 
 # Metrics
 graphite
+
+
+# Test files
+test_files
