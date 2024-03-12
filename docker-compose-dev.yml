@@ -72,6 +72,8 @@ services:
     environment:
       - LOCAL=${LOCAL}
       - N_THREADS=6
+    volumes:
+      - "./test_files:/app/test_files"
 
 volumes:
   grafana_config:
