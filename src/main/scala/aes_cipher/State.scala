@@ -66,27 +66,16 @@ class State(var data: Matrix) {
   def mixColumns(): Unit = {
     for (i <- 0 until Constants.N_B) {
       val col = data.getCol(i)
-      val newCol = Array[Byte](
-        (galoisMul(col(0), 2) ^ galoisMul(col(1), 3) ^ col(2) ^ col(3)).toByte,
-        (col(0) ^ galoisMul(col(1), 2) ^ galoisMul(col(2), 3) ^ col(3)).toByte,
-        (col(0) ^ col(1) ^ galoisMul(col(2), 2) ^ galoisMul(col(3), 3)).toByte,
-        (galoisMul(col(0), 3) ^ col(1) ^ col(2) ^ galoisMul(col(3), 2)).toByte
-      )
-
-      data.setCol(i, newCol)
+      mixColumn(col)
+      data.setCol(i, col)
     }
   }
 
   def invMixColumns(): Unit = {
     for (i <- 0 until Constants.N_B) {
       val col = data.getCol(i)
-      val newCol = Array[Byte](
-        (galoisMul(col(0), 14) ^ galoisMul(col(1), 11) ^ galoisMul(col(2), 13) ^ galoisMul(col(3), 9)).toByte,
-        (galoisMul(col(0), 9) ^ galoisMul(col(1), 14) ^ galoisMul(col(2), 11) ^ galoisMul(col(3), 13)).toByte,
-        (galoisMul(col(0), 13) ^ galoisMul(col(1), 9) ^ galoisMul(col(2), 14) ^ galoisMul(col(3), 11)).toByte,
-        (galoisMul(col(0), 11) ^ galoisMul(col(1), 13) ^ galoisMul(col(2), 9) ^ galoisMul(col(3), 14)).toByte
-      )
-      data.setCol(i, newCol)
+      invMixColumn(col)
+      data.setCol(i, col)
     }
   }
 
@@ -105,21 +94,36 @@ class State(var data: Matrix) {
     }
   }
 
-  private def galoisMul(a: Byte, b: Byte): Byte = {
-    var result = 0
-    var tempA = a & 0xFF
-    var tempB = b & 0xFF
-    while (tempB != 0) {
-      if ((tempB & 1) != 0) {
-        result ^= tempA
-      }
-      val hiBitSet = (tempA & 0x80) != 0
-      tempA <<= 1
-      if (hiBitSet) {
-        tempA ^= 0x1b
-      }
-      tempB >>= 1
+  private def mixColumn(col: Array[Byte]): Unit = {
+    val a = col(0)
+    val b = col(1)
+    val c = col(2)
+    val d = col(3)
+    col(0) = (galoisDouble((a ^ b).toByte) ^ b ^ c ^ d).toByte
+    col(1) = (galoisDouble((b ^ c).toByte) ^ c ^ d ^ a).toByte
+    col(2) = (galoisDouble((c ^ d).toByte) ^ d ^ a ^ b).toByte
+    col(3) = (galoisDouble((d ^ a).toByte) ^ a ^ b ^ c).toByte
+  }
+
+  private def invMixColumn(col: Array[Byte]): Unit = {
+    val a = col(0)
+    val b = col(1)
+    val c = col(2)
+    val d = col(3)
+    val x = galoisDouble((a ^ b ^ c ^ d).toByte)
+    val y = galoisDouble((x ^ a ^ c).toByte)
+    val z = galoisDouble((x ^ b ^ d).toByte)
+    col(0) = (galoisDouble((y ^ a ^ b).toByte) ^ b ^ c ^ d).toByte
+    col(1) = (galoisDouble((z ^ b ^ c).toByte) ^ c ^ d ^ a).toByte
+    col(2) = (galoisDouble((y ^ c ^ d).toByte) ^ d ^ a ^ b).toByte
+    col(3) = (galoisDouble((z ^ d ^ a).toByte) ^ a ^ b ^ c).toByte
+  }
+
+  private def galoisDouble(a: Byte): Byte = {
+    var result = (a << 1).toByte
+    if (a < 0) {
+      result = (result ^ 0x1b).toByte
     }
-    result.toByte
+    result
   }
 }
