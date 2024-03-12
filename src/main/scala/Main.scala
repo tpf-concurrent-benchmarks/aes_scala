@@ -1,10 +1,6 @@
-import aes_cipher.{AESCipher, Constants}
-
-import java.util.concurrent.ForkJoinPool
-import scala.collection.parallel.CollectionConverters.*
-import scala.collection.parallel.ForkJoinTaskSupport
+import java.io.{BufferedInputStream, FileInputStream, FileOutputStream}
 import scala.concurrent.duration.*
-import scala.util.Random
+import scala.util.{Try, Using}
 
 @main def main(): Unit =
 
@@ -14,51 +10,64 @@ import scala.util.Random
     0
   }
 
+  println(s"Number of threads: $nThreads")
+
   Thread.sleep(10.seconds.toMillis)
 
-  val blocksToEncrypt = 1000000
-  val blocks = (0 until blocksToEncrypt).map(_ => {
-    val block = new Array[Byte](4 * Constants.N_B)
-    for (i <- 0 until (4 * Constants.N_B)) {
-      block(i) = Random.nextInt(256).toByte
-    }
-    block
-  }).toVector
+  val inputFile = "test_files/lorem_ipsum.txt"
+  val outputFile = "test_files/output.txt"
+  val decryptedFile = "test_files/decrypted.txt"
 
   val cipherKey: BigInt = BigInt("2b7e151628aed2a6abf7158809cf4f3c", 16)
+  println(s"Cipher key: ${cipherKey.toString(16)}")
 
-  val cipher = AESCipher(cipherKey)
-  val forkJoinPool = createForkJoinPool(nThreads)
-  val forkJoinTask = new ForkJoinTaskSupport(forkJoinPool)
+  val cipher = new AesCipher(cipherKey, nThreads)
 
   val startTime = System.nanoTime()
 
-  if (!sys.env.contains("LOCAL")) {
-
-    val result = applyOperationsAndCompare(cipher, blocks, forkJoinTask)
-    assert(result)
-
-    println("Test passed (local)")
-
-    val elapsedTime = (System.nanoTime() - startTime) / 1e9
-    println(s"Elapsed time: $elapsedTime s")
-
+  Try {
+    Using.resources(new FileInputStream(inputFile), new FileOutputStream(outputFile)) { (input, output) =>
+      cipher.cipher(input, output)
+    }
+  } match {
+    case scala.util.Failure(e) =>
+      println(s"Error while encrypting file: ${e.getMessage}")
+      System.exit(1)
+    case _ =>
   }
 
-def applyOperationsAndCompare(cipher: AESCipher, blocks: Vector[Array[Byte]], forkJoinTask: ForkJoinTaskSupport): Boolean = {
-  val cipheredBlocks = blocks.par
-  cipheredBlocks.tasksupport = forkJoinTask
-  cipheredBlocks.map(block => cipher.cipherBlock(block)).toVector
-
-  val decipheredBlocks = cipheredBlocks.par
-  decipheredBlocks.tasksupport = forkJoinTask
-  decipheredBlocks.map(block => cipher.invCipherBlock(block)).toVector
-
-  blocks.zip(decipheredBlocks).forall { case (originalBlock, decipheredBlock) =>
-    originalBlock.sameElements(decipheredBlock)
+  Try {
+    Using.resources(new FileInputStream(outputFile), new FileOutputStream(decryptedFile)) { (input, output) =>
+      cipher.decipher(input, output)
+    }
+  } match {
+    case scala.util.Failure(e) =>
+      println(s"Error while decrypting file: ${e.getMessage}")
+      System.exit(1)
+    case _ =>
   }
+
+  val elapsedTime = (System.nanoTime() - startTime) / 1e9
+  println(s"Elapsed time: $elapsedTime s")
+
+  if (compareFiles(inputFile, decryptedFile)) {
+    println("Test passed")
+  } else {
+    println("Test failed")
+  }
+
+def compareFiles(file1: String, file2: String): Boolean = {
+  val buffer1 = new Array[Byte](1024)
+  val buffer2 = new Array[Byte](1024)
+
+  Using.Manager { use =>
+    val input1 = use(new BufferedInputStream(new FileInputStream(file1)))
+    val input2 = use(new BufferedInputStream(new FileInputStream(file2)))
+
+    Iterator.continually((input1.read(buffer1), input2.read(buffer2))).takeWhile {
+      case (-1, -1) => false
+      case (bytesRead1, bytesRead2) => bytesRead1 == bytesRead2 && buffer1.slice(0, bytesRead1).sameElements(buffer2.slice(0, bytesRead2))
+    }.hasNext
+  }.getOrElse(false)
 }
-
-def createForkJoinPool(parallelismLevel: Int): java.util.concurrent.ForkJoinPool =
-  new java.util.concurrent.ForkJoinPool(parallelismLevel)
 

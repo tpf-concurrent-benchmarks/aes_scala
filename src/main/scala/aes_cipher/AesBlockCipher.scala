@@ -2,7 +2,7 @@ package aes_cipher
 
 import java.nio.ByteBuffer
 
-class AESCipher(val expandedKey: AESKey, val invExpandedKey: AESKey) {
+class AesBlockCipher(val expandedKey: AESKey, val invExpandedKey: AESKey) {
 
   def this(cipherKey: Array[Byte]) = {
     this(new AESKey(cipherKey, true), new AESKey(cipherKey, false))
@@ -59,11 +59,11 @@ class AESCipher(val expandedKey: AESKey, val invExpandedKey: AESKey) {
   }
 }
 
-object AESCipher {
-  def apply(cipherKey: BigInt): AESCipher = {
+object AesBlockCipher {
+  def apply(cipherKey: BigInt): AesBlockCipher = {
     val cipherKeyBytes = cipherKey.toByteArray
     val cipherKeyArray = new Array[Byte](4 * Constants.N_B)
     Array.copy(cipherKeyBytes, 0, cipherKeyArray, 0, 4 * Constants.N_B)
-    new AESCipher(cipherKeyArray)
+    new AesBlockCipher(cipherKeyArray)
   }
 }
