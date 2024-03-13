@@ -1,6 +1,7 @@
+import com.timgroup.statsd.NonBlockingStatsDClientBuilder
+
 import java.io.{BufferedInputStream, FileInputStream, FileOutputStream}
 import scala.concurrent.duration.DurationInt
-
 import scala.util.{Try, Using}
 
 @main def main(): Unit =
@@ -56,6 +57,10 @@ import scala.util.{Try, Using}
   } else {
     println("Test failed")
   }
+
+  val statsdClient = NonBlockingStatsDClientBuilder().prefix("aes_cipher").hostname("graphite").port(8125).build()
+  println("Sending metrics to graphite")
+  statsdClient.gauge("completion_time", elapsedTime)
 
 def compareFiles(file1: String, file2: String): Boolean = {
   val buffer1 = new Array[Byte](1024)
