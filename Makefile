@@ -1,6 +1,7 @@
 REMOTE_WORK_DIR = aes_scala/aes_scala
 SERVER_USER = efoppiano
 SERVER_HOST = atom.famaf.unc.edu.ar
+N_THREADS=6
 
 init:
 	docker swarm init || true
@@ -14,10 +15,13 @@ build:
 setup: init build
 .PHONY: setup
 
+deploy_local:
+	N_THREADS=${N_THREADS} docker compose -f=docker-compose-dev.yml up
+
 deploy: remove build
 	mkdir -p graphite
 	mkdir -p grafana_config
-	docker stack deploy \
+	N_THREADS=4 docker stack deploy \
 	-c docker/server.yaml \
 	aes_scala; \
 	do sleep 1; done
