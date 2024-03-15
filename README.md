@@ -23,6 +23,11 @@ If you wish to run (and compile) the project, you can do so with the following c
 N_THREADS=4 sbt run
 ```
 
+Keep in mind that if `N_THREADS` environment variable is not set, the program will exit with an error message.
+
+Also, you must create a `test_file/lorem_ipsum.txt` file with the text you want to encrypt/decrypt. 
+The output of the encryption/decryption will be in the `test_file/output.txt` and `test_file/decrypted.txt `files.
+
 ## Running tests
 
 To run the tests, you can use the following command:
