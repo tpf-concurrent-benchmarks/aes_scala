@@ -17,13 +17,18 @@ setup: init build
 deploy_local:
 	docker compose -f=docker-compose-dev.yml up
 
-deploy: remove build
+_deploy:
 	mkdir -p graphite
 	mkdir -p grafana_config
+	until REPEAT=1 N_THREADS=4 PLAIN_TEXT=data/lorem_ipsum_4.txt ENCRYPTED_TEXT=data/encrypted.txt DECRYPTED_TEXT=data/decrypted.txt \
 	docker stack deploy \
-	-c docker/server.yaml \
+	-c docker-compose.yml \
 	aes_scala; \
 	do sleep 1; done
+.PHONY: _deploy
+
+deploy: remove build
+	make _deploy
 .PHONY: deploy
 
 remove:
@@ -33,7 +38,7 @@ remove:
 .PHONY: remove
 
 logs:
-	docker service logs -f aes_scala
+	docker service logs -f aes_scala_aes
 .PHONY: logs
 
 run_local:

@@ -4,12 +4,12 @@ services:
   graphite:
     image: graphiteapp/graphite-statsd:1.1.10-4
     volumes:
-      - "../graphite_conf/statsd.config.js:/opt/statsd/config/udp.js:ro"
-      - "../graphite_conf/statsd.config.js:/opt/statsd/config/tcp.js:ro"
-      - "../graphite_conf/graphite.blacklist.conf:/opt/graphite/conf/blacklist.conf:ro"
-      - "../graphite_conf/graphite.carbon.conf:/opt/graphite/conf/carbon.conf:ro"
-      - "../graphite_conf/graphite.storage-schemas.conf:/opt/graphite/conf/storage-schemas.conf:ro"
-      - "../graphite:/opt/graphite/storage/:rw"
+      - "./graphite_conf/statsd.config.js:/opt/statsd/config/udp.js:ro"
+      - "./graphite_conf/statsd.config.js:/opt/statsd/config/tcp.js:ro"
+      - "./graphite_conf/graphite.blacklist.conf:/opt/graphite/conf/blacklist.conf:ro"
+      - "./graphite_conf/graphite.carbon.conf:/opt/graphite/conf/carbon.conf:ro"
+      - "./graphite_conf/graphite.storage-schemas.conf:/opt/graphite/conf/storage-schemas.conf:ro"
+      - "./graphite:/opt/graphite/storage/:rw"
     ports:
       - "8080:8080"
       - "8125:8125/udp"
@@ -60,7 +60,7 @@ services:
         reservations:
           memory: 64M
 
-  aes:
+  app:
     image: aes_scala
     depends_on:
       - graphite
@@ -70,6 +70,12 @@ services:
     environment:
       - LOCAL=${LOCAL}
       - N_THREADS=${N_THREADS}
+      - REPEAT=${REPEAT}
+      - PLAIN_TEXT=${PLAIN_TEXT}
+      - ENCRYPTED_TEXT=${ENCRYPTED_TEXT}
+      - DECRYPTED_TEXT=${DECRYPTED_TEXT}
+    volumes:
+      - "./data:/app/data:rw"
 
 volumes:
   grafana_config:
