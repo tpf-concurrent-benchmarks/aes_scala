@@ -1,6 +1,8 @@
+ARG SCALA_VERSION=3.4.0
+
 FROM adoptopenjdk:11-jre-hotspot as builder
 
-ENV SCALA_VERSION=3.4.0
+ARG SCALA_VERSION
 ENV SBT_VERSION=1.9.6
 
 RUN curl -LO https://github.com/lampepfl/dotty/releases/download/$SCALA_VERSION/scala3-$SCALA_VERSION.tar.gz && \
@@ -15,15 +17,15 @@ ENV PATH=/opt/scala3/bin:/opt/sbt/bin:$PATH
 
 WORKDIR /app
 
-# COPY common common
+COPY build.sbt .
+COPY project project
+COPY src src
 
-# RUN cd common && sbt publishLocal
-
-COPY . aes
-
-RUN cd aes && sbt assembly
+RUN sbt assembly
 
 FROM alpine:latest
+
+ARG SCALA_VERSION
 
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 ENV PATH="$PATH:$JAVA_HOME/bin"
@@ -34,6 +36,6 @@ RUN apk update && \
 
 WORKDIR /app
 
-COPY --from=builder /app/aes/target/scala-3.4.0/aes.jar .
+COPY --from=builder /app/target/scala-$SCALA_VERSION/aes.jar /app
 
 CMD ["java", "-Xmx500m", "-jar", "-XX:ParallelGCThreads=1", "aes.jar"]
