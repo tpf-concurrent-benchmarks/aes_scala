@@ -70,7 +70,6 @@ services:
       restart_policy:
         condition: none
     environment:
-      - LOCAL=${LOCAL}
       - N_THREADS=${N_THREADS}
       - REPEAT=${REPEAT}
       - PLAIN_TEXT=${PLAIN_TEXT}
