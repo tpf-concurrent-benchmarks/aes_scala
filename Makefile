@@ -20,7 +20,7 @@ deploy_local:
 _deploy:
 	mkdir -p graphite
 	mkdir -p grafana_config
-	until REPEAT=1 N_THREADS=4 PLAIN_TEXT=data/lorem_ipsum_4.txt ENCRYPTED_TEXT=data/encrypted.txt DECRYPTED_TEXT=data/decrypted.txt \
+	until \
 	docker stack deploy \
 	-c docker-compose.yml \
 	aes_scala; \

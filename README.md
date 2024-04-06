@@ -20,13 +20,8 @@ sbt compile
 If you wish to run (and compile) the project, you can do so with the following command:
 
 ```bash
-N_THREADS=4 sbt run
+N_THREADS=4 REPEAT=2 PLAIN_TEXT=data/lorem_ipsum.txt ENCRYPTED_TEXT=data/encrypted.txt DECRYPTED_TEXT=data/decrypted.txt sbt run
 ```
-
-Keep in mind that if `N_THREADS` environment variable is not set, the program will exit with an error message.
-
-Also, you must create a `test_file/lorem_ipsum.txt` file with the text you want to encrypt/decrypt. 
-The output of the encryption/decryption will be in the `test_file/output.txt` and `test_file/decrypted.txt `files.
 
 ## Running tests
 
@@ -42,9 +37,16 @@ sbt test
 docker compose -f=docker-compose-dev.yml up
 ```
 
-## Number of threads
+Alternatively, you can use a Makefile command to run the project.
 
-If you wish to change the number of threads being used in the local thread pool, you can do so by changing the `N_THREADS` constant in the `Makefile` file.
+```bash
+make deploy_local
+```
+
+## Editing .env file
+
+As an example, this repository includes a `.env.example` file that can be used to set the environment variables for the project.
+A `.env` file must be created with the same content as the `.env.example` file, and it should be placed in the root directory of the project.
 
 ## Makefile
 
