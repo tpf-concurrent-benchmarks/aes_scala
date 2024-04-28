@@ -2,6 +2,12 @@ REMOTE_WORK_DIR = aes_scala/aes_scala
 SERVER_USER = efoppiano
 SERVER_HOST = atom.famaf.unc.edu.ar
 
+N_THREADS=4
+REPEAT=100
+PLAIN_TEXT=data/input.txt
+ENCRYPTED_TEXT=data/encrypted.txt
+DECRYPTED_TEXT=data/decrypted.txt
+
 init:
 	docker swarm init || true
 .PHONY: init
@@ -14,6 +20,10 @@ build:
 setup: init build
 .PHONY: setup
 
+dummy_file:
+	mkdir -p data
+	echo "Hello World!" > data/input.txt
+
 deploy_local:
 	docker compose -f=docker-compose-dev.yml up
 
@@ -21,6 +31,11 @@ _deploy:
 	mkdir -p graphite
 	mkdir -p grafana_config
 	until \
+	N_THREADS=$(N_THREADS) \
+	REPEAT=$(REPEAT) \
+	PLAIN_TEXT=$(PLAIN_TEXT) \
+	ENCRYPTED_TEXT=$(ENCRYPTED_TEXT) \
+	DECRYPTED_TEXT=$(DECRYPTED_TEXT) \
 	docker stack deploy \
 	-c docker-compose.yml \
 	aes_scala; \
@@ -38,7 +53,7 @@ remove:
 .PHONY: remove
 
 logs:
-	docker service logs -f aes_scala_aes
+	docker service logs -f aes_scala_app
 .PHONY: logs
 
 run_local:
